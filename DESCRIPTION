@@ -1,0 +1,24 @@
+Package: IsingFitBO
+Type: Package
+Title: Ising Model Estimation with Bayesian Optimization
+Version: 0.1.0
+Date: 2025-05-12
+Authors@R: 
+  person("Renato", "Rodrigues Silva", role = c("aut", "cre"), email = "renato.rrsilva@ufg.br"),
+  person("Claudia", "van Borkulo", role = "ctb", email = "cvborkulo@gmail.com"),
+  person("Sacha", "Epskamp", role = "ctb"),
+  person("Alexander", "Robitzsch", role = "ctb"),
+  person("Mihai", "Alexandru Constantin", role = "ctb")
+Description: 
+  An extension of the IsingFit package (van Borkulo et al., 2014) that implements 
+  Bayesian Optimization for lambda hyperparameter tuning. This adaptation retains 
+  the original network estimation logic while adding automated hyperparameter 
+  selection. Licensed under GPL-2 as a derivative work.
+License: GPL-2
+Depends: R (>= 3.5.0)
+Imports: 
+  glmnet,
+  qgraph,
+  GauPro
+URL: https://https://github.com/renatoUFG/IsingFitBO
+BugReports: https://github.com/yourusername/IsingFitBO/issues
