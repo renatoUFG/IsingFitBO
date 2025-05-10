@@ -3,12 +3,13 @@ Type: Package
 Title: Ising Model Estimation with Bayesian Optimization
 Version: 0.1.0
 Date: 2025-05-12
-Authors@R: 
+Authors@R: c(
   person("Renato", "Rodrigues Silva", role = c("aut", "cre"), email = "renato.rrsilva@ufg.br"),
   person("Claudia", "van Borkulo", role = "ctb", email = "cvborkulo@gmail.com"),
   person("Sacha", "Epskamp", role = "ctb"),
   person("Alexander", "Robitzsch", role = "ctb"),
   person("Mihai", "Alexandru Constantin", role = "ctb")
+ )
 Description: 
   An extension of the IsingFit package (van Borkulo et al., 2014) that implements 
   Bayesian Optimization for lambda hyperparameter tuning. This adaptation retains 
