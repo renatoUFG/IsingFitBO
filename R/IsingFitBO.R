@@ -46,7 +46,7 @@
 #' Original authors: Claudia D. van Borkulo, Sacha Epskamp \cr
 #' Contributors: Alexander Robitzsch, Mihai Alexandru Constantin \cr
 #' Bayesian Optimization implementation: Renato Rodrigues Silva (2025) \cr
-#' Maintainer: Renato Rodrigues Silva <renato.rrsilva@gmail.com>
+#' Maintainer: Renato Rodrigues Silva <renato.rrsilva@ufg.br>
 #'
 #' @note
 #' This function extends the original \code{IsingFit} package (van Borkulo et al., 2014).

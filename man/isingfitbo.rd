@@ -102,5 +102,5 @@ Reports 4, 5918. DOI:10.1038/srep05918.
 Original authors: Claudia D. van Borkulo, Sacha Epskamp \cr
 Contributors: Alexander Robitzsch, Mihai Alexandru Constantin \cr
 Bayesian Optimization implementation: Renato Rodrigues Silva (2025) \cr
-Maintainer: Claudia D. van Borkulo <cvborkulo@gmail.com>
+Maintainer: Renato Rodrigues Silva <renato.rrsilva@ufg.br>
 }
