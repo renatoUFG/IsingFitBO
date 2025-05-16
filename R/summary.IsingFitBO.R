@@ -9,7 +9,7 @@
 #' @param ... Additional arguments
 #'
 #' @return
-#' An object of class `summary.IsingFitBO` containing network properties and optimization details.
+#' An object of class `summary.IsingFit` containing network properties and optimization details.
 #'
 #' @export
 summary.IsingFitBO <-

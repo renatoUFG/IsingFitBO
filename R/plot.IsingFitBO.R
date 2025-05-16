@@ -1,9 +1,9 @@
-#' Plot Method for IsingFitBO Objects
+#' Plot Method for IsingFit Objects
 #'
 #' @description
 #' Visualizes the results of an Ising model estimation with Bayesian optimization.
 #'
-#' @param x An object of class `IsingFitBO`
+#' @param x An object of class `IsingFit`
 #' @param type Plot type: "network" (default), "convergence", or "parameters"
 #' @param main Plot title (optional)
 #' @param ... Additional arguments passed to plot functions
