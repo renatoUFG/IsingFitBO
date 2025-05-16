@@ -1,30 +1,100 @@
-# GNU GENERAL PUBLIC LICENSE - Version 2, June 1991
-# Copyright (C) Claudia van Borkulo
-# Modified by Renato Rodrigues Silva (2025) to include Bayesian Optimization.
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
-IsingFitBO = function(x, method="BayesOpt", family = "binomial", 
+#' Network Estimation Using eLasso Method with Bayesian Optimization
+#'
+#' @description
+#' An extension of the IsingFit package that implements Bayesian Optimization for lambda
+#' hyperparameter tuning. This adaptation retains the original network estimation logic
+#' while adding automated hyperparameter selection. Licensed under GPL-2 as a derivative work.
+#'
+#' @param x Input matrix (nobs x nvars) where each row represents an observation of the variables.
+#'          Must be cross-sectional data.
+#' @param method Either "BayesOpt" (default) for Bayesian Optimization or "Grid" for predefined
+#'               grid search with nine lambda values.
+#' @param family Currently only "binomial" is supported (for binary data).
+#' @param AND Logical indicating whether to use AND-rule (TRUE) or OR-rule (FALSE) to define
+#'           network edges. Defaults to TRUE.
+#' @param niter Number of iterations for Bayesian Optimization. Default is 20.
+#' @param gamma Hyperparameter gamma value for extended BIC (between 0 and 1). Default is 0.25.
+#' @param plot Logical indicating whether to plot the resulting network. Default is TRUE.
+#' @param ... Additional arguments passed to \code{qgraph}.
+#'
+#' @return
+#' An object of class 'IsingFit' containing:
+#' \item{weiadj}{Weighted adjacency matrix}
+#' \item{thresholds}{Variable thresholds}
+#' \item{q}{qgraph object (class 'qgraph')}
+#' \item{gamma}{Used gamma hyperparameter value}
+#' \item{AND}{Logical indicating AND-rule usage}
+#' \item{time}{Computation time}
+#' \item{asymm.weights}{Asymmetrical weighted adjacency matrix before AND/OR rule}
+#' \item{lambda.values}{Optimal tuning parameter values per node}
+#'
+#' @references
+#' Chen, J., & Chen, Z. (2008). Extended bayesian information criteria for model selection with
+#' large model spaces. Biometrika, 95(3), 759-771.
+#'
+#' Foygel, R., & Drton, M. (2011). Bayesian model choice and information criteria in sparse
+#' generalized linear models. arXiv preprint arXiv:1112.5635.
+#'
+#' Ravikumar, P., Wainwright, M. J., & Lafferty, J. D. (2010). High-dimensional Ising model
+#' selection using l1-regularized logistic regression. The Annals of Statistics, 38, 1287-1319.
+#'
+#' van Borkulo, C. D., Borsboom, D., Epskamp, S., Blanken, T. F., Boschloo, L., Schoevers, R. A.,
+#' & Waldorp, L. J. (2014). A new method for constructing networks from binary data. Scientific
+#' Reports 4, 5918. DOI:10.1038/srep05918.
+#'
+#' @author
+#' Original authors: Claudia D. van Borkulo, Sacha Epskamp \cr
+#' Contributors: Alexander Robitzsch, Mihai Alexandru Constantin \cr
+#' Bayesian Optimization implementation: Renato Rodrigues Silva (2025) \cr
+#' Maintainer: Claudia D. van Borkulo <cvborkulo@gmail.com>
+#'
+#' @note
+#' This function extends the original \code{IsingFit} package (van Borkulo et al., 2014).
+#' The Bayesian Optimization feature was added in 2025.
+#'
+#' @examples
+#' \donttest{
+#' library(IsingSampler)
+#'
+#' # Simulate dataset
+#' N <- 6  # Number of nodes
+#' nSample <- 1000  # Number of samples
+#'
+#' # Generate random graph structure
+#' Graph <- matrix(sample(0:1, N^2, TRUE, prob = c(0.8, 0.2)) * runif(N^2, 0.5, 2)
+#' Graph <- pmax(Graph, t(Graph))  # Symmetrize
+#' diag(Graph) <- 0  # No self-loops
+#' Thresh <- -rowSums(Graph)/2  # Thresholds
+#'
+#' # Simulate data
+#' Data <- IsingSampler(nSample, Graph, Thresh)
+#'
+#' # Fit model with Bayesian Optimization
+#' Res <- IsingFitBO(Data, method = "BayesOpt", niter = 20, gamma = 0.25)
+#'
+#' # Plot results
+#' if (require("qgraph")) {
+#'   layout(t(1:2))
+#'   qgraph(Res$weiadj, fade = FALSE, title = "Estimated Network")
+#'   qgraph(Graph, fade = FALSE, title = "True Network")
+#' }
+#' }
+#'
+#' @export
+IsingFitBO = function(x, method="BayesOpt", family = "binomial",
                       AND = TRUE, niter=20, plot = TRUE,
-                      gamma_hyp = 0.25, ...)   
+                      gamma_hyp = 0.25, ...)
 {
   t0 = Sys.time()
   xx = x
   set.seed(123)
   if (family != "binomial") {
-    stop("This procedure is only supported for binary 
+    stop("This procedure is only supported for binary
          (family='binomial') data")
   }
   log_uniform_grid = function(center, ngrid = 6, log_range = 3) {
-    # Generates a grid of values regularly spaced 
-    #on a logarithmic scale around a given center point. 
+    # Generates a grid of values regularly spaced
+    #on a logarithmic scale around a given center point.
     #The center does not need to be included
     #in the grid, but the grid is symmetric around log(center).
     log_center = log(center)
@@ -33,9 +103,9 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
     log_seq = seq(log_min, log_max, length.out = ngrid)
     return(exp(log_seq))
   }
-  # The `allowedNodes` function checks whether a 
-  # binary variable (node) has sufficient variability 
-  # to be included in logistic regression modeling 
+  # The `allowedNodes` function checks whether a
+  # binary variable (node) has sufficient variability
+  # to be included in logistic regression modeling
   # within the IsingFit procedure.
   allowedNodes <- function(nodeValues) {
     nodeValues <- as.factor(nodeValues)
@@ -53,8 +123,8 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
   names(NodesToAnalyze) = colnames(x)
   if (!any(NodesToAnalyze)) stop("No variance in dataset")
   if (any(!NodesToAnalyze)) {
-    warning(paste("Nodes with too little variance (not allowed):", 
-                  paste(colnames(x)[!NodesToAnalyze], 
+    warning(paste("Nodes with too little variance (not allowed):",
+                  paste(colnames(x)[!NodesToAnalyze],
                         collapse = ", ")))
   }
   x = as.matrix(x)
@@ -84,27 +154,27 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
       intercepts = betas =  lambdas = vector("list", length=nvar)
       sumloglik <- J <- EBIC <-  numeric(length(Lambdas))
       for (iter in 1:niter) {
-        #Step 1 - Fit Poisson LASSO Regression 
+        #Step 1 - Fit Poisson LASSO Regression
         #for each ith - node and k-th lambda
-        mod = glmnet(x[, -i], 
+        mod = glmnet(x[, -i],
                      x[,i], lambda = Lambdas,
                      family = "binomial")
         if(iter > 1 ){
-          intercepts[[i]] = c(intercepts[[i]],mod$a0) 
+          intercepts[[i]] = c(intercepts[[i]],mod$a0)
           betas[[i]] = cbind(betas[[i]],mod$beta)
-          lambdas[[i]] =  c(lambdas[[i]],mod$lambda) 
+          lambdas[[i]] =  c(lambdas[[i]],mod$lambda)
           Lambdas = lambdas[[i]]
         } else {
           intercepts[[i]] = mod$a0
           betas[[i]] = mod$beta
           lambdas[[i]] =  mod$lambda
         }
-        #Step 2 - Compute EBIC for each ith node 
+        #Step 2 - Compute EBIC for each ith node
         #and kth lambda
         if(iter == 1){
           y = x[,i]
-          eta <- predict(mod, newx = x[, -i], 
-                             s = lambdas[[i]], 
+          eta <- predict(mod, newx = x[, -i],
+                             s = lambdas[[i]],
                              type = "link")
           mu = 1 / (1 + exp(-eta))
           sumloglik = colSums(y * log(mu) + (1 - y) * log(1 - mu))
@@ -112,28 +182,28 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
           EBIC = -2 * sumloglik + J * log(nobs) + 2 * gamma_hyp * J * log(p)
         } else {
           k = length(Lambdas)
-          eta = predict(mod, 
-                        newx = x[,-i], 
-                        s = lambdas[[i]][k], 
+          eta = predict(mod,
+                        newx = x[,-i],
+                        s = lambdas[[i]][k],
                         type = "link")
-          mu = 1 / (1 + exp(-eta))  
+          mu = 1 / (1 + exp(-eta))
           y = x[,i]
           sumloglik[k] = sum(y * log(mu) + (1 - y) * log(1 - mu))
           beta_k = betas[[i]][,k]
           J[k] = sum(beta_k != 0)
-          EBIC[k] = -2 * sumloglik[k] + J[k] * log(nobs) + 
+          EBIC[k] = -2 * sumloglik[k] + J[k] * log(nobs) +
             2 * gamma_hyp * J[k] * log(p)
-        } 
+        }
         #Step 3 - Obtain the minimal value of EBIC
         y_min = min(EBIC)
         lambda_best = lambdas[[i]][which.min( EBIC)]
         #Step 4 - Generate new values of lambda
         center <- lambda_best
-        Lambdas_prime = log_uniform_grid(center, 
-                                         ngrid = length(lambdas[[i]]), 
+        Lambdas_prime = log_uniform_grid(center,
+                                         ngrid = length(lambdas[[i]]),
                                          log_range = 2)
         #Step 5 - Fit GP for regression
-        gp_model =  gpkm(lambdas[[i]], EBIC, 
+        gp_model =  gpkm(lambdas[[i]], EBIC,
                          kernel = "Gaussian",
                          nug.est = FALSE, nug=1e-06)
         #Step 6 - Estimate the Expected Improvement
@@ -144,12 +214,12 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
         EI = (y_min - mu) * pnorm(Z) + sigma * dnorm(Z)
         lambda_EI = Lambdas_prime[which.max(EI)]
         Lambdas = lambda_EI
-      } 
+      }
       EBIC_per_node[[i]] = min(EBIC)
       lambda_per_node[[i]] = lambdas[[i]][which.min(EBIC)]
       intercepts_per_node[[i]] = intercepts[[i]][which.min(EBIC)]
       betas_per_node[[i]] = betas[[i]][,which.min(EBIC)]
-    }  
+    }
   } else if(method == "Grid"){
     for(i in 1:nvar){
       if(nobs >= p){
@@ -159,19 +229,19 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
       }
       intercepts = betas =  lambdas = vector("list", length=nvar)
       sumloglik <- J <- EBIC <-  numeric(length(Lambdas))
-      #Step 1 - Fit Poisson LASSO Regression 
+      #Step 1 - Fit Poisson LASSO Regression
       #for each ith - node and k-th lambda
-      mod = glmnet(x[, -i], 
+      mod = glmnet(x[, -i],
                    x[,i], lambda = Lambdas,
                    family = "binomial")
       intercepts[[i]] = mod$a0
       betas[[i]] = mod$beta
       lambdas[[i]] =  mod$lambda
-      #Step 2 - Compute EBIC for each ith node 
+      #Step 2 - Compute EBIC for each ith node
       #and kth lambda
       y = x[,i]
-      eta_mat <- predict(mod, newx = x[, -i], 
-                         s = lambdas[[i]], 
+      eta_mat <- predict(mod, newx = x[, -i],
+                         s = lambdas[[i]],
                          type = "link")
       mu_mat <- 1 / (1 + exp(-eta_mat))
       logliks <- colSums(y * log(mu_mat) + (1 - y) * log(1 - mu_mat))
@@ -183,11 +253,11 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
       lambda_per_node[[i]] = lambdas[[i]][which.min(EBIC)]
       intercepts_per_node[[i]] = intercepts[[i]][which.min(EBIC)]
       betas_per_node[[i]] = betas[[i]][,which.min(EBIC)]
-    }    
+    }
   } else {
-    stop("The function only accepts the strings 'BayesOpt' 
+    stop("The function only accepts the strings 'BayesOpt'
          or 'Grid' in the method argument.")
-  } 
+  }
   EBIC = EBIC_per_node
   lambdas = lambda_per_node
   betas = betas_per_node
@@ -215,23 +285,23 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
   threshNew = rep(NA, p)
   threshNew[NodesToAnalyze] = thresholds
   if (plot == TRUE) notplot <- FALSE else notplot <- TRUE
-  q = qgraph(graphNew, layout = "spring", 
-              labels = names(NodesToAnalyze), 
+  q = qgraph(graphNew, layout = "spring",
+              labels = names(NodesToAnalyze),
               DoNotPlot = notplot)
   Res <- list(
-    weiadj = graphNew, 
-    thresholds = threshNew, 
+    weiadj = graphNew,
+    thresholds = threshNew,
     q = q, gamma = gamma_hyp,
-    AND = AND, 
-    time = Sys.time() - t0, 
+    AND = AND,
+    time = Sys.time() - t0,
     asymm.weights = asymm.weights,
     lambda.values = lambdas,
     EBIC = EBIC
   )
-  class(Res) <- "IsingFitBO"
+  class(Res) <- "IsingFit"
   return(Res)
-}   
-     
+}
+
 
 
 

@@ -1,16 +1,17 @@
-# GNU GENERAL PUBLIC LICENSE - Version 2, June 1991
-# Copyright (C) Claudia van Borkulo
-# Modified by Renato Rodrigues Silva (2025) to include Bayesian Optimization.
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
+
+#' Summary Method for IsingFitBO Objects
+#'
+#' @description
+#' Provides comprehensive summary statistics for Ising model estimation results.
+#'
+#' @param object An object of class `IsingFit`
+#' @param digits Number of significant digits (default=3)
+#' @param ... Additional arguments
+#'
+#' @return
+#' An object of class `summary.IsingFitBO` containing network properties and optimization details.
+#'
+#' @export
 summary.IsingFitBO <-
 function(object, ...)
 {

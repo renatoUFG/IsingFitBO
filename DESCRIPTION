@@ -23,3 +23,5 @@ Imports:
   GauPro
 URL: https://https://github.com/renatoUFG/IsingFitBO
 BugReports: https://github.com/yourusername/IsingFitBO/issues
+RoxygenNote: 7.3.2
+Encoding: UTF-8

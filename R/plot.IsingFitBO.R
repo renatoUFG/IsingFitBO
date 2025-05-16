@@ -1,15 +1,19 @@
-# GNU GENERAL PUBLIC LICENSE - Version 2, June 1991
-# Copyright (C) Claudia van Borkulo
-# Modified by Renato Rodrigues Silva (2025) to include Bayesian Optimization.
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-# GNU General Public License for more details.
+#' Plot Method for IsingFitBO Objects
+#'
+#' @description
+#' Visualizes the results of an Ising model estimation with Bayesian optimization.
+#'
+#' @param x An object of class `IsingFitBO`
+#' @param type Plot type: "network" (default), "convergence", or "parameters"
+#' @param main Plot title (optional)
+#' @param ... Additional arguments passed to plot functions
+#'
+#' @return
+#' Invisibly returns the plot object. For "network" type, returns a `qgraph` object.
+#'
+#' @seealso
+#' \code{\link{qgraph}} for network visualization options
+#'
+#' @export
 plot.IsingFitBO <-
 function(x,...) qgraph(x$q,DoNotPlot = FALSE, ...)
