@@ -158,6 +158,9 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
         #for each ith - node and k-th lambda
         mod = glmnet(x[, -i],
                      x[,i], lambda = Lambdas,
+                     standardize = FALSE,
+                     thresh = 1e-10,
+                     maxit = 1e5,
                      family = "binomial")
         if(iter > 1 ){
           intercepts[[i]] = c(intercepts[[i]],mod$a0)
