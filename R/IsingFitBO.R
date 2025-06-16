@@ -229,7 +229,7 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
     }
   } else if(method == "Grid"){
     for(i in 1:nvar){
-      Xy = x[,-i]%*%x[,i]
+      Xy = crossprod(x[,-i],x[,i])
       lam_max = (1 / nobs)*max(Xy)
       lam_min = 0.0001*lam_max
       Lambdas = seq(lam_min, lam_max, length=9)
