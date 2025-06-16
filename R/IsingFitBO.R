@@ -296,7 +296,7 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
   threshNew = rep(NA, p)
   threshNew[NodesToAnalyze] = thresholds
   if (plot == TRUE) notplot <- FALSE else notplot <- TRUE
-  q = qgraph(graphNew, layout = "spring",
+  q = qgraph::qgraph(graphNew, layout = "spring",
               labels = names(NodesToAnalyze),
               DoNotPlot = notplot)
   Res <- list(
