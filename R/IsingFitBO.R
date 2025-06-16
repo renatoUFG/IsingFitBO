@@ -146,11 +146,15 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
   betas_per_node = vector("list", length=nvar)
   if(method=="BayesOpt"){
     for(i in 1:nvar){
-      if(nobs >= p){
-        Lambdas = c(0.00001,seq(0.01, by = 0.01, length=7),3)
-      } else {
-        Lambdas = c(0.001,seq(0.01, by = 0.01, length=7),3)
-      }
+      Xy = x[,-i]%*%x[,i]
+      lam_max = (1 / nobs)*max(Xy)
+      lam_min = 0.0001*lam_max
+      Lambdas = seq(lam_min, lam_max, length=9)
+      #if(nobs >= p){
+      #  Lambdas = c(0.00001,seq(0.01, by = 0.01, length=7),3)
+      #} else {
+      #  Lambdas = c(0.001,seq(0.01, by = 0.01, length=7),3)
+      #}
       intercepts = betas =  lambdas = vector("list", length=nvar)
       sumloglik <- J <- EBIC <-  numeric(length(Lambdas))
       for (iter in 1:niter) {
@@ -225,11 +229,15 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
     }
   } else if(method == "Grid"){
     for(i in 1:nvar){
-      if(nobs >= p){
-        Lambdas = c(0.00001,seq(0.01, by = 0.01, length=7),3)
-      } else {
-        Lambdas = c(0.001,seq(0.01, by = 0.01, length=7),3)
-      }
+      Xy = x[,-i]%*%x[,i]
+      lam_max = (1 / nobs)*max(Xy)
+      lam_min = 0.0001*lam_max
+      Lambdas = seq(lam_min, lam_max, length=9)
+      #if(nobs >= p){
+      #  Lambdas = c(0.00001,seq(0.01, by = 0.01, length=7),3)
+      #} else {
+      #  Lambdas = c(0.001,seq(0.01, by = 0.01, length=7),3)
+      #}
       intercepts = betas =  lambdas = vector("list", length=nvar)
       sumloglik <- J <- EBIC <-  numeric(length(Lambdas))
       #Step 1 - Fit Poisson LASSO Regression
