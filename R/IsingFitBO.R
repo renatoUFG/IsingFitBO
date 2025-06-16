@@ -160,7 +160,7 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
       for (iter in 1:niter) {
         #Step 1 - Fit Poisson LASSO Regression
         #for each ith - node and k-th lambda
-        mod = glmnet(x[, -i],
+        mod = glmnet::glmnet(x[, -i],
                      x[,i], lambda = Lambdas,
                      standardize = FALSE,
                      thresh = 1e-10,
@@ -210,7 +210,7 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
                                          ngrid = length(lambdas[[i]]),
                                          log_range = 2)
         #Step 5 - Fit GP for regression
-        gp_model =  gpkm(lambdas[[i]], EBIC,
+        gp_model =  GauPro::gpkm(lambdas[[i]], EBIC,
                          kernel = "Gaussian",
                          nug.est = FALSE, nug=1e-06)
         #Step 6 - Estimate the Expected Improvement
@@ -242,7 +242,7 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
       sumloglik <- J <- EBIC <-  numeric(length(Lambdas))
       #Step 1 - Fit Poisson LASSO Regression
       #for each ith - node and k-th lambda
-      mod = glmnet(x[, -i],
+      mod = glmnet::glmnet(x[, -i],
                    x[,i], lambda = Lambdas,
                    family = "binomial")
       intercepts[[i]] = mod$a0
