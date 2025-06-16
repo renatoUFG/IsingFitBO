@@ -168,12 +168,12 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
                      family = "binomial")
         if(iter > 1 ){
           intercepts[[i]] = c(intercepts[[i]],mod$a0)
-          betas[[i]] = cbind(betas[[i]],mod$beta)
+          betas[[i]] = cbind(betas[[i]],as.matrix(mod$beta))
           lambdas[[i]] =  c(lambdas[[i]],mod$lambda)
           Lambdas = lambdas[[i]]
         } else {
           intercepts[[i]] = mod$a0
-          betas[[i]] = mod$beta
+          betas[[i]] = as.matrix(mod$beta)
           lambdas[[i]] =  mod$lambda
         }
         #Step 2 - Compute EBIC for each ith node
