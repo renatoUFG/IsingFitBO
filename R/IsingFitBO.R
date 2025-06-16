@@ -148,7 +148,7 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
     for(i in 1:nvar){
       Xy = crossprod(x[,-i],x[,i])
       lam_max = (1 / nobs)*max(Xy)
-      lam_min = 0.0001*lam_max
+      lam_min = 0.00001*lam_max
       Lambdas = seq(lam_min, lam_max, length=9)
       #if(nobs >= p){
       #  Lambdas = c(0.00001,seq(0.01, by = 0.01, length=7),3)
@@ -231,7 +231,7 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
     for(i in 1:nvar){
       Xy = crossprod(x[,-i],x[,i])
       lam_max = (1 / nobs)*max(Xy)
-      lam_min = 0.0001*lam_max
+      lam_min = 0.00001*lam_max
       Lambdas = seq(lam_min, lam_max, length=9)
       #if(nobs >= p){
       #  Lambdas = c(0.00001,seq(0.01, by = 0.01, length=7),3)
@@ -256,7 +256,7 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
                          type = "link")
       mu_mat <- 1 / (1 + exp(-eta_mat))
       logliks <- colSums(y * log(mu_mat) + (1 - y) * log(1 - mu_mat))
-      J <- colSums(mod$beta != 0)
+      J <- colSums(as.matrix(mod$beta) != 0)
       EBIC <- -2 * logliks + J * log(nobs) + 2 * gamma_hyp * J * log(p)
       #Step 3 - Choose the value of lambda that minimizes
       #EBIC
