@@ -149,10 +149,10 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
       Xy = crossprod(x[,-i],x[,i])
       lam_max = (1 / nobs)*max(Xy)
       if(nobs >=p){
-        lam_min = 0.00001*lam_max
+        lam_min = 0.001*lam_max
         Lambdas = exp(seq(log(lam_min), log(lam_max), length=20))
       } else {
-        lam_min = 0.001*lam_max
+        lam_min = 0.01*lam_max
         Lambdas = exp(seq(log(lam_min), log(lam_max), length=20))
       }
       #if(nobs >= p){
@@ -242,11 +242,11 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
       Xy = crossprod(x[,-i],x[,i])
       lam_max = (1 / nobs)*max(Xy)
       if(nobs >=p){
-        lam_min = 0.00001*lam_max
-        Lambdas = exp(seq(log(lam_min), log(lam_max), length=9))
-      } else {
         lam_min = 0.001*lam_max
-        Lambdas = exp(seq(log(lam_min), log(lam_max), length=9))
+        Lambdas = exp(seq(log(lam_min), log(lam_max), length=20))
+      } else {
+        lam_min = 0.01*lam_max
+        Lambdas = exp(seq(log(lam_min), log(lam_max), length=20))
       }
       #if(nobs >= p){
       #  Lambdas = c(0.00001,seq(0.01, by = 0.01, length=7),lam_max)
