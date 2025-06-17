@@ -87,7 +87,7 @@ IsingFitBO = function(x, method="BayesOpt", family = "binomial",
 {
   t0 = Sys.time()
   xx = x
-  set.seed(123)
+  #set.seed(123)
   if (family != "binomial") {
     stop("This procedure is only supported for binary
          (family='binomial') data")
